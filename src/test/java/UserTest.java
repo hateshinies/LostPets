@@ -2,9 +2,29 @@ import domain.Actor;
 import domain.User;
 import domain.UserRole;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class UserTest {
+    SoftAssertions soft = new SoftAssertions();
+
+    @AfterEach
+    public void assertAll() {
+        soft.assertAll();
+    }
+
+    @Test
+    public void shouldCreateUserFromConstructor() {
+        UserRole role = UserRole.OWNER;
+        String password = "easypass";
+        String name = "Jack";
+        String phone = "8-970-421-9812";
+        String code = "2b7as";
+
+        User user = new User(code, password, role, name, phone);
+
+        soft.assertThat(user).hasFieldOrPropertyWithValue("phone", phone);
+    }
 
     @Test
     public void shouldRegisterUser() {
@@ -20,10 +40,8 @@ public class UserTest {
         User userFromWeb = new User(confirmationCode, password, role, name, phone);
         boolean result = user.finishTwoStepRegistration(userFromWeb);
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(result).isTrue();
         soft.assertThat(user).hasFieldOrProperty("token");
-        soft.assertAll();
     }
 
     @Test
@@ -35,7 +53,6 @@ public class UserTest {
         String phone = "8-970-421-9812";
         Actor actor = new Actor(email, role, null);
         User user = new User();
-
         String confirmationCode = user.startTwoStepRegistration(actor);
         User userFromWeb = new User(confirmationCode, password, role, name, phone);
         user.finishTwoStepRegistration(userFromWeb);
@@ -43,9 +60,7 @@ public class UserTest {
 
         Actor authedActor = user.auth(password);
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(authedActor).hasFieldOrProperty("token");
-        soft.assertAll();
     }
 
     @Test
@@ -57,16 +72,12 @@ public class UserTest {
         String phone = "8-970-421-9812";
         Actor actor = new Actor(email, role, null);
         User user = new User();
-
         String confirmationCode = user.startTwoStepRegistration(actor);
         User userFromWeb = new User(confirmationCode, password, role, name, phone);
         user.finishTwoStepRegistration(userFromWeb);
-        //вместо этого внести юзера скриптом в базу через executor
 
         user.block();
 
-        SoftAssertions soft = new SoftAssertions();
-        soft.assertThat(user).hasFieldOrPropertyWithValue("token", null).hasFieldOrPropertyWithValue("isActual",false);
-        soft.assertAll();
+        soft.assertThat(user).hasFieldOrPropertyWithValue("token", null).hasFieldOrPropertyWithValue("isActual", false);
     }
 }

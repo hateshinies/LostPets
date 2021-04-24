@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class Extra extends AbstractEntity {
     long id;
+    long publicationId;
     LocalDate startDate;
     Integer daysQuantity;
     String coordinates;
@@ -17,7 +18,8 @@ public class Extra extends AbstractEntity {
         this.id = id;
     }
 
-    public void add(LocalDate startDate, int daysQuantity, String coordinates, Type type) {
+    public void add(long publicationId, LocalDate startDate, int daysQuantity, String coordinates, Type type) {
+        this.publicationId = publicationId;
         this.startDate = startDate;
         this.daysQuantity = daysQuantity;
         this.coordinates = coordinates;

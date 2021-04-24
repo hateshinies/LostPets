@@ -1,8 +1,24 @@
 import domain.Payment;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class PaymentTest {
+    SoftAssertions soft = new SoftAssertions();
+
+    @AfterEach
+    public void assertAll() {
+        soft.assertAll();
+    }
+
+    @Test
+    public void shouldCreatePaymentUsingConstructorWithId() {
+        long id = 12L;
+
+        Payment payment = new Payment(id);
+
+        soft.assertThat(payment).hasFieldOrPropertyWithValue("id", id);
+    }
 
     @Test
     public void shouldCreateNewPayment() {
@@ -11,9 +27,7 @@ public class PaymentTest {
 
         payment.create(amount);
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(payment).hasFieldOrPropertyWithValue("amount", amount);
-        soft.assertAll();
     }
 
     @Test
@@ -23,8 +37,6 @@ public class PaymentTest {
 
         payment.pay(transactionId);
 
-        SoftAssertions soft = new SoftAssertions();
-        soft.assertThat(payment).hasFieldOrProperty("executedAt").isNotNull();
-        soft.assertAll();
+        soft.assertThat(payment).hasFieldOrPropertyWithValue("transactionId", transactionId);
     }
 }

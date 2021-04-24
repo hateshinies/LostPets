@@ -1,5 +1,5 @@
-import domain.User;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,15 +9,13 @@ import utils.SqlCreator;
 import utils.SqlExecutor;
 
 import java.sql.Connection;
-import java.util.Properties;
+import java.sql.SQLException;
+import java.util.*;
 
 public class SqlCreatorTest {
-    //подготовить для тестов - тестовую таблицу
     private static Connection connection;
     private static SqlExecutor executor;
     private static SoftAssertions soft;
-    private static SqlCreator sqlCreator;
-
 
     @BeforeAll
     public static void connect() throws Exception {
@@ -31,51 +29,82 @@ public class SqlCreatorTest {
     }
 
     @AfterEach
-    public void assertAll(){
+    public void assertAll() {
         soft.assertAll();
+    }
+
+    @AfterAll
+    public static void disconnect() throws SQLException {
+        connection.close();
     }
 
     @Test
     public void shouldExecuteInsertQuery() throws Exception {
-        User user = new User();
-        user.pack();
+        String actorEmail = new Random().nextInt(999) + "actor@mail.ru";
+        Map<String, String> cargo = new HashMap<>();
+        cargo.put("entityName", "Actor");
+        cargo.put("email", actorEmail);
+        SqlCreator creator = new SqlCreator(cargo);
 
-        long createdId = executor.simpleLongQuery(user.queries.createQuery);
+        String email = executor.simpleStringQuery(creator.createQuery);
 
-        soft.assertThat(createdId).isInstanceOf(Long.class);
-    }
-/*
-    @Test
-    public void shouldExecuteUpdateQuery() throws SQLException {
-        long id = executor.insert(sqlCreator.createQuery, new String[]{"Jacob", "8-900-390-9248", "mostbeautiful@mail.com"});
-
-        long result = executor.update(sqlCreator.updateQuery, new String[]{"Bob", "8-998-390-9248", "thebest@mail.com", Long.toString(id)});
-
-        soft.assertThat(result).isInstanceOf(Long.class);
+        soft.assertThat(email).isEqualTo(actorEmail);
     }
 
     @Test
-    public void shouldExecuteDeleteQuery() throws SQLException {
-        long id = executor.insert(sqlCreator.createQuery, new String[]{"Jacob", "8-900-390-9248", "mostbeautiful@mail.com"});
+    public void shouldExecuteUpdateQuery() throws Exception {
+        String email = new Random().nextInt(999) + "actor@mail.ru";
+        String insertQuery = "insert into actor (\"role\",\"email\") values ('RESPONDER','" + email + "')";
+        executor.simpleStringQuery(insertQuery);
+        Map<String, String> cargo = new HashMap<>();
+        cargo.put("entityName", "Actor");
+        cargo.put("email", email);
+        cargo.put("token", "123bc3e");
+        SqlCreator creator = new SqlCreator(cargo);
 
-        long result = executor.delete(sqlCreator.deleteQuery, id);
+        String updatedEmail = executor.simpleStringQuery(creator.updateQuery);
 
-        soft.assertThat(result).isInstanceOf(Long.class);
+        soft.assertThat(updatedEmail).isEqualTo(email);
     }
 
     @Test
-    public void shouldExecuteGetOneQuery() throws SQLException {
-        long id = executor.insert(sqlCreator.createQuery, new String[]{"Jacob", "8-900-390-9248", "mostbeautiful@mail.com"});
+    public void shouldExecuteDeleteQuery() throws Exception {
+        String email = new Random().nextInt(999) + "actor@mail.ru";
+        String insertQuery = "insert into actor (\"role\",\"email\") values ('RESPONDER','" + email + "')";
+        executor.simpleStringQuery(insertQuery);
+        Map<String, String> cargo = new HashMap<>();
+        cargo.put("entityName", "Actor");
+        cargo.put("email", email);
+        SqlCreator creator = new SqlCreator(cargo);
 
-        Map<String, String> fields = executor.getById(sqlCreator.getOneQuery, id);
+        String deletedEmail = executor.simpleStringQuery(creator.deleteQuery);
 
-        soft.assertThat(fields).hasNoNullFieldsOrProperties();
+        soft.assertThat(email).isEqualTo(deletedEmail);
     }
 
     @Test
-    public void shouldExecuteGetAllQuery() throws SQLException {
-        List<Map<String, String>> fieldsList = executor.getAll(sqlCreator.getAllQuery);
+    public void shouldExecuteGetOneQuery() throws Exception {
+        String email = new Random().nextInt(999) + "actor@mail.ru";
+        String insertQuery = "insert into actor (\"role\",\"email\") values ('RESPONDER','" + email + "')";
+        executor.simpleStringQuery(insertQuery);
+        Map<String, String> cargo = new HashMap<>();
+        cargo.put("entityName", "Actor");
+        cargo.put("email", email);
+        SqlCreator creator = new SqlCreator(cargo);
 
-        soft.assertThat(fieldsList).hasAtLeastOneElementOfType(String[].class);
-    }*/
+        Map<String, String> object = executor.getValuesQuery(creator.getOneQuery).get(0);
+
+        soft.assertThat(object.get("email")).isEqualTo(email);
+    }
+
+    @Test
+    public void shouldExecuteGetAllQuery() throws Exception {
+        Map<String, String> cargo = new HashMap<>();
+        cargo.put("entityName", "Actor");
+        SqlCreator creator = new SqlCreator(cargo);
+
+        List<Map<String, String>> objects = executor.getValuesQuery(creator.getAllQuery);
+
+        soft.assertThat(objects).isNotEmpty();
+    }
 }

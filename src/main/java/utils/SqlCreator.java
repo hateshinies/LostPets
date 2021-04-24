@@ -20,9 +20,7 @@ public class SqlCreator {
     }
 
     private void prepareQueries(Map<String, String> map) {
-        char[] letters = map.get("entityName").toCharArray();
-        letters[0] = Character.toLowerCase(letters[0]);
-        entityName = new String(letters);
+        entityName = map.get("entityName");
         map.remove("entityName");
 
         createQuery = prepareCreateQuery(map);
@@ -33,7 +31,6 @@ public class SqlCreator {
     }
 
     private String prepareCreateQuery(Map<String, String> map) {
-        //t
         String createStartQuery = "insert into %s (";
         String createMiddleQuery = ") values (";
         String createEndQuery = ")";
@@ -50,11 +47,6 @@ public class SqlCreator {
                 createMiddleQuery.replaceAll(".$", "") +
                 createEndQuery;
 
-/*
-        PreparedStatement statement = new Connection().prepareStatement(preparedQuery);
-        statement.setObject(1, UserRole.USER.,java.sql.Types.OTHER);*/
-
-
         return String.format(preparedQuery, entityName);
     }
 
@@ -69,17 +61,6 @@ public class SqlCreator {
                 updateEnd = updateEnd.replace("\"id\"", "\"email\"") + "'" + entry.getValue() + "'";
             else
                 updateStart = updateStart + "\"" + entry.getKey() + "\" = '" + entry.getValue() + "',";
-
-/*
-            if (entry.getKey().contains("id")) {
-                if (entry.getKey().equals("id"))
-                    updateEnd += entry.getValue();
-            } else {
-                if (entry.getKey().equals("email"))
-                    updateEnd += entry.getValue();
-                else
-                    updateStart += entry.getKey() + " = '" + entry.getValue() + "',";
-            }*/
         }
         String preparedQuery = updateStart.replaceAll(".$", "") + updateEnd;
         return String.format(preparedQuery, entityName);
@@ -89,9 +70,9 @@ public class SqlCreator {
     private String prepareDeleteQuery(Map<String, String> map) {
         String deleteQuery = "delete from %s where \"id\" = ";
         if (map.containsKey("id"))
-            deleteQuery += map.get("id");
+            deleteQuery = deleteQuery + "'" + map.get("id") + "'";
         else if (map.containsKey("email"))
-            deleteQuery += map.get("email");
+            deleteQuery = deleteQuery.replace("\"id\"", "\"email\"") + "'" + map.get("email") + "'";
         else
 //            throw new IllegalStateException("pk not found");
             return null;

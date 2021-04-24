@@ -29,13 +29,16 @@ public abstract class AbstractEntity {
                 continue;
             cargo.put(field.getName(), String.valueOf(field.get(this)));
         }
-        String entityName = clazz.getSimpleName();
+        String entityName;
+        char[] letters = clazz.getSimpleName().toCharArray();
+        letters[0] = Character.toLowerCase(letters[0]);
+        entityName = "\"" + new String(letters) + "\"";
         cargo.put("entityName", entityName);
         queries = new SqlCreator(cargo);
     }
 
     /**
-     * Возвращает экземпляр класса, построенного из мапы shuttle
+     * Возвращает экземпляр класса, построенного из мапы cargo
      */
     public Object unpack(Class<?> clazz) throws Exception {
         Field[] fields = clazz.getDeclaredFields();
@@ -70,32 +73,6 @@ public abstract class AbstractEntity {
                 }
             }
         }
-
-/*        for (Field field : fields) {
-            String fieldName = field.getName();
-            if (!shuttle.cargo.containsKey(fieldName))
-                continue;
-            //записать его значение в object
-            if (long.class.isAssignableFrom(field.getType())) {
-                long value = Long.parseLong(shuttle.getValue(fieldName));
-                classInstance.getClass().getDeclaredField(fieldName)
-                        .set(classInstance, value);
-            }
-            if (String.class.isAssignableFrom(field.getType())) {
-                classInstance.getClass().getDeclaredField(fieldName)
-                        .set(classInstance, shuttle.getValue(fieldName));
-            }
-            if (Enum.class.isAssignableFrom(field.getType()))
-                classInstance.getClass().getDeclaredField(fieldName)
-                        .set(classInstance, Enum.valueOf((Class<Enum>) field.getType(), shuttle.getValue(fieldName)));
-        }
-
-        if (field.get(this) == null || field.get(this).equals(shuttle))
-            continue;*/
         return classInstance;
-    }
-
-    public boolean isUnPacked() {
-        return cargo.isEmpty();
     }
 }

@@ -1,25 +1,42 @@
+import domain.Extra;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import utils.BasicConnectionPool;
-import utils.SqlCreator;
-import utils.SqlExecutor;
 import utils.DbProperties;
+import utils.SqlExecutor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 public class SqlExecutorTest {
     static Connection connection;
+    static SqlExecutor executor;
+    SoftAssertions soft = new SoftAssertions();
 
     @BeforeAll
-    public static void connect() throws SQLException {
+    public static void connect() throws Exception {
         Properties props = DbProperties.getProps();
         String url = props.getProperty("jdbc.url");
         String username = props.getProperty("jdbc.username");
         String password = props.getProperty("jdbc.password");
         connection = BasicConnectionPool.create(url, username, password).getConnection();
+        executor = new SqlExecutor(connection);
+    }
+
+    @AfterEach
+    public void assertAll() throws SQLException {
+        soft.assertAll();
+    }
+
+    @AfterAll
+    public static void disconnect() throws SQLException {
+        connection.close();
     }
 
 
@@ -27,35 +44,35 @@ public class SqlExecutorTest {
     public void shouldCreateSqlExecutor() {
         SqlExecutor executor = new SqlExecutor(connection);
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(executor).hasNoNullFieldsOrProperties();
-        soft.assertAll();
     }
 
     @Test
     public void shouldExecuteSimpleLongQuery() throws SQLException {
-        SqlExecutor executor = new SqlExecutor(connection);
+        int id = new Random().nextInt(999);
+        String insertQuery = "insert into extra (\"id\",\"startDate\",\"daysQuantity\",coordinates) values ("+ id + ",'2021-2-4',3,'74,91;87,42')";
 
-        long id = executor.simpleLongQuery("insert into payment (\"extraId\",amount,\"transactionId\",\"dateTime\") values (48,540,74918741,(48,540,'74918741','1619089'))");
+        long returnedId = executor.simpleLongQuery(insertQuery);
 
-        SoftAssertions soft = new SoftAssertions();
-        soft.assertThat(id).isInstanceOf(long.class);
-        soft.assertAll();
+        soft.assertThat(returnedId).isInstanceOf(Long.class);
     }
 
     @Test
     public void shouldExecuteSimpleStringQuery() throws SQLException {
-        SqlExecutor executor = new SqlExecutor(connection);
+        String email = new Random().nextInt(999) + "sm@mail.ru";
+        String insertQuery = "insert into actor (\"role\",\"email\") values ('RESPONDER','" + email + "')";
 
-        String email = executor.simpleStringQuery("insert into actor (\"role\",\"email\") values ('RESPONDER','someemail@mail.ru')");
+        String returnedEMail = executor.simpleStringQuery(insertQuery);
 
-        SoftAssertions soft = new SoftAssertions();
-        soft.assertThat(email).isInstanceOf(String.class);
-        soft.assertAll();
+        soft.assertThat(returnedEMail).isInstanceOf(String.class);
     }
 
     @Test
-    public void shouldExecuteGetValuesQuery() {
+    public void shouldExecuteGetValuesQuery() throws SQLException {
+        String insertQuery = "select * from actor";
 
+        Map<String, String> actors = executor.getValuesQuery(insertQuery).get(0);
+
+        soft.assertThat(actors).hasFieldOrProperty("email");
     }
 }

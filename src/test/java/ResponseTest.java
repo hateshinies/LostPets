@@ -1,10 +1,25 @@
 import domain.Actor;
 import domain.Response;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class ResponseTest {
+    SoftAssertions soft = new SoftAssertions();
+
+    @AfterEach
+    public void assertAll() {
+        soft.assertAll();
+    }
+
+    @Test
+    public void shouldCreateResponseUsingConstructorWithId() {
+        long id = 31L;
+        Response response = new Response(id);
+
+        soft.assertThat(response).hasFieldOrPropertyWithValue("id", id);
+    }
 
     @Test
     public void shouldCreateResponse() {
@@ -15,9 +30,7 @@ public class ResponseTest {
 
         response.create(pubId, photo, description);
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(response).hasFieldOrPropertyWithValue("photo", photo);
-        soft.assertAll();
     }
 
 
@@ -31,8 +44,6 @@ public class ResponseTest {
 
         response.create(pubId, photo, description);
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(response).hasFieldOrPropertyWithValue("actor", actor);
-        soft.assertAll();
     }
 }

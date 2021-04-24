@@ -16,49 +16,6 @@ public class SqlExecutor {
         this.connection = connection;
     }
 
-   /* public long insert(String preparedQuery) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(preparedQuery);
-
-        for (int i = 0; i < fields.length; i++)
-            statement.setString(i + 1, fields[i]);
-        return simpleQuery(statement.toString());
-    }
-
-    public long update(String preparedQuery, String[] fields) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(preparedQuery);
-
-        for (int i = 0; i < fields.length; i++) {
-            //последним в массиве идет long id
-            if (i == fields.length - 1)
-                statement.setLong(i + 1, Long.parseLong(fields[i]));
-                //остальные элементы - String
-            else
-                statement.setString(i + 1, fields[i]);
-        }
-        return simpleQuery(statement.toString());
-    }
-
-    public long delete(String preparedQuery, Long id) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(preparedQuery);
-        statement.setLong(1, id);
-        return simpleQuery(statement.toString());
-    }
-
-    public Map<String,String> getById(String preparedQuery, long id) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(preparedQuery);
-        statement.setLong(1, id);
-        Map<String, String> object = getValuesQuery(statement.toString()).get(0);
-
-        if (object.isEmpty())
-            return new HashMap<>();
-
-        return object;
-    }
-
-    public List<Map<String,String>> getAll(String preparedQuery) throws SQLException {
-        return getValuesQuery(preparedQuery);
-    }*/
-
     /**
      * Метод выполняет простой sql-запрос, подходит для insert, update, delete с id типа long
      *

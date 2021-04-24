@@ -1,19 +1,32 @@
 import domain.Actor;
 import domain.UserRole;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class ActorTest {
+    SoftAssertions soft = new SoftAssertions();
+
+    @AfterEach
+    public void assertAll() {
+        soft.assertAll();
+    }
 
     @Test
-    public void shouldCreateActor() {
+    public void shouldCreateActorUsingConstructorWithEmail() {
+        String email = "zero@cocacola.com";
+        Actor actor = new Actor(email);
+
+        soft.assertThat(actor).hasFieldOrPropertyWithValue("email", email);
+    }
+
+    @Test
+    public void shouldCreateActorUsingConstructor() {
         String email = "zero@cocacola.com";
         UserRole role = UserRole.OWNER;
         Actor actor = new Actor(email, role, null);
 
-        SoftAssertions soft = new SoftAssertions();
-        soft.assertThat(actor).hasFieldOrPropertyWithValue("email", email);
-        soft.assertAll();
+        soft.assertThat(actor).hasFieldOrPropertyWithValue("role", role);
     }
 
     @Test
@@ -24,8 +37,6 @@ public class ActorTest {
 
         boolean result = actor.isAuthed();
 
-        SoftAssertions soft = new SoftAssertions();
         soft.assertThat(result).isFalse();
-        soft.assertAll();
     }
 }

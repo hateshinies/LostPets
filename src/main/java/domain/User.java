@@ -40,7 +40,6 @@ public class User extends AbstractEntity {
 
     /**
      * @param user - это JSON-объект, который получен от фронта
-     * @return
      */
     public boolean finishTwoStepRegistration(User user) {
         if (!user.code.equals(code)) return false;

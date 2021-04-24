@@ -14,6 +14,10 @@ public class Response extends AbstractEntity {
     public Response() {
     }
 
+    public Response(long id) {
+        this.id = id;
+    }
+
     public Response(Actor actor) {
         this.actor = actor;
     }
